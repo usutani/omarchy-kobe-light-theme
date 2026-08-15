@@ -1,7 +1,7 @@
 # kobe-light の Omarchy Quattro 対応 移行計画
 
 作成日: 2026-08-15
-更新日: 2026-08-15 (実機 resolver 検証・移行実施・適用確認・nvim フォールバック修正の記録を反映)
+更新日: 2026-08-15 (実機 resolver 検証・移行実施・適用確認・nvim フォールバック修正・foot カーソル修正・Plymouth ロゴ追加の記録を反映)
 対象環境: Omarchy 4.0.0-1 (Quattro) / Hyprland (Lua 設定) / Quickshell
 
 ## 1. 目的
@@ -147,6 +147,8 @@ kobe-light テーマを Omarchy 4 (Quattro) で「意図どおりに」動作さ
 - `unlock.png` — **Plymouth ブートロゴ**用。`omarchy plymouth set-by-theme kobe-light` がテーマの `background` / `foreground` 色と `unlock.png` をロゴとして、`/usr/share/plymouth/themes/omarchy/logo.png` と SDDM ログインロゴへインストールする (`omarchy-plymouth-set-by-theme:53`)。システム標準テーマ 22 種は全て保有 (実例 `lupine` は 800×378 RGBA PNG)。**Quickshell のロック画面 (背景画像) には使われない**点に注意。`omarchy theme set` 時には自動適用されないため任意。
 - `preview-unlock.png` — `omarchy plymouth switcher` / `omarchy plymouth list` の**プレビューサムネイル**。無いテーマは一覧に表示されない (任意)。
 
+> **追加済み (2026-08-15):** 両ファイルを追加。`unlock.png` は Noto Sans Regular で「Kobe」を #3B3B3B で描画した 800×378 RGBA、`preview-unlock.png` は Omarchy の plymouth アセットで合成した 1920×1080 モック。`omarchy plymouth list` に kobe-light が表示されることを確認。`omarchy plymouth set-by-theme kobe-light` での適用は未実施 (任意)。
+
 ### Step 4: 生成物との整合チェック
 
 再適用 (`omarchy theme set kobe-light`) 後に確認する生成ファイル:
@@ -156,7 +158,7 @@ kobe-light テーマを Omarchy 4 (Quattro) で「意図どおりに」動作さ
 - 適用状態: `omarchy theme current` → `kobe-light`、`~/.local/state/omarchy/current/theme.name` が `kobe-light` であること。
 - canonical 解決: `omarchy-theme-color --file ~/.config/omarchy/themes/kobe-light/colors.toml --all` で `mode=light`, `dark_background=#F8F8F8`, `darker_background=#F2F2F2`, `brown` (決定値), `cursor=bright_foreground` が解決されること。
 - `shell.toml` — `[bar]`, `[popups]`, `[notifications]`, `[launcher]`, `[menu]`, `[polkit]`, `[lock]`, `[image-picker]` の配色が意図どおりか。
-- `alacritty.toml` / `foot.ini` / `kitty.conf` / `ghostty.conf` — ANSI 色とカーソル色 (`cursor = bright_foreground`)。
+- `alacritty.toml` / `foot.ini` / `kitty.conf` / `ghostty.conf` — ANSI 色とカーソル色。手書き設定のためカーソルは VS Code `#000000` に固定 (foot は `FFFFFF 000000` = 白文字・黒ブロック、他3端末は `#000000`)。resolver 生成版なら `bright_foreground` (#A5A5A5) になる。
 - `vscode-theme.json` / `claude.json` / `pi.json` — canonical 色から自動生成される版。
 - `hyprland.lua` — `active_border = accent` (#005FB8) を確認。
 - `btop.theme` / `neovim.lua` / `obsidian.css` — 手書きファイルが生成版を上書きしていること。
@@ -209,8 +211,15 @@ omarchy theme bg current        # 現在の壁紙を表示
   - 修正: symlink を**絶対パス**へ張り直し (`ln -sfn "$HOME/.local/state/omarchy/current/theme/neovim.lua" ~/.config/nvim/lua/plugins/theme.lua`)。Omarchy マイグレーションの相対形式は `~/.config/nvim` が symlink の環境では壊れるため注意。
   - 追加修正: `colors/kobe-light.lua` に `vim.o.background = "light"` を設定 (未設定だと `background` = `dark` のまま残り、UI が暗く描画される)。
   - 検証: headless 起動で `colors_name = kobe-light`、`vim.o.background = light`、Normal fg = `#3B3B3B`、起動エラーなし。目視確認済み (ユーザー確認)。
+- **foot カーソル不可視の修正 (2026-08-15):**
+  - 原因: 手書き `foot.ini` の `cursor=000000 FFFFFF` が**逆順**だった。foot の `cursor` は `<テキスト色> <カーソル背景>` の順 (man: `ff0000 00ff00` = 赤文字・緑カーソル) のため、`FFFFFF` 側がカーソルブロックの色になり、白背景と同化して見えなかった。
+  - 修正: `cursor=FFFFFF 000000` (白文字・黒ブロック) に変更し、`~/.local/state/omarchy/current/theme/foot.ini` へ同期 (commit `7ea0ca3`)。
+  - 検証: フォーカスした foot を grim で撮影し、カーソルが `#000000` の黒ブロックとして描画されることをピクセル解析で確認。適用には foot の再起動が必要。
+  - alacritty / kitty / ghostty は最初から正しい順序 (`#000000`) で問題なし。
+- **Plymouth ロゴ追加 (2026-08-15):** `unlock.png` / `preview-unlock.png` を追加 (commit `45cb30c`)。`omarchy plymouth list` への表示を確認。
 
 ## 8. 残課題
 
 - **目視確認 (未実施):** Quickshell の bar・通知・ロック・メニュー・polkit、および btop / Obsidian / VS Code / 端末の配色。結果に問題があれば §7 へ追記し、必要なら色値を修正する。
-- **(任意)** `unlock.png` / `preview-unlock.png` の追加 — Plymouth ブートロゴ (§4 Step 3 参照)。追加する場合、`omarchy plymouth set-by-theme kobe-light` で適用する。
+- **foot カーソル修正の適用:** 既存の foot ターミナルの再起動 (設定は起動時読込のため)。※このセッションをホストする foot は再起動できていない
+- **(任意)** `omarchy plymouth set-by-theme kobe-light` による Plymouth ブートロゴの適用 (unlock.png は追加済み)。
