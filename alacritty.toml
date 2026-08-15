@@ -1,0 +1,51 @@
+# Kobe Light — Alacritty colors (hand-written)
+# Cursor forced to VS Code #000000 (resolver would set bright_foreground #A5A5A5).
+# All other values match the Omarchy canonical palette derived from VS Code light theme.
+
+[colors.primary]
+background = "#FFFFFF"
+foreground = "#3B3B3B"
+
+[colors.cursor]
+text = "#FFFFFF"
+cursor = "#000000"
+
+[colors.vi_mode_cursor]
+text = "#FFFFFF"
+cursor = "#000000"
+
+[colors.search.matches]
+foreground = "#FFFFFF"
+background = "#949800"
+
+[colors.search.focused_match]
+foreground = "#FFFFFF"
+background = "#CD3131"
+
+[colors.footer_bar]
+foreground = "#FFFFFF"
+background = "#3B3B3B"
+
+[colors.selection]
+text = "#FFFFFF"
+background = "#ADD6FF"
+
+[colors.normal]
+black = "#FFFFFF"
+red = "#CD3131"
+green = "#107C10"
+yellow = "#949800"
+blue = "#0451A5"
+magenta = "#BC05BC"
+cyan = "#0598BC"
+white = "#3B3B3B"
+
+[colors.bright]
+black = "#666666"
+red = "#CD3131"
+green = "#14CE14"
+yellow = "#B5BA00"
+blue = "#0451A5"
+magenta = "#BC05BC"
+cyan = "#0598BC"
+white = "#A5A5A5"

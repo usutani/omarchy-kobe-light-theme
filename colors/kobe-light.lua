@@ -1,4 +1,5 @@
 vim.g.colors_name = "kobe-light"
+vim.o.background = "light"
 
 local set = vim.api.nvim_set_hl
 
