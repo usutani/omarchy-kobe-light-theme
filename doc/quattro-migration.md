@@ -1,7 +1,7 @@
 # kobe-light の Omarchy Quattro 対応 移行計画
 
 作成日: 2026-08-15
-更新日: 2026-08-15 (実機 resolver 検証に基づく事実誤認の修正と項目追加)
+更新日: 2026-08-15 (実機 resolver 検証・移行実施・適用確認・nvim フォールバック修正の記録を反映)
 対象環境: Omarchy 4.0.0-1 (Quattro) / Hyprland (Lua 設定) / Quickshell
 
 ## 1. 目的
@@ -21,8 +21,8 @@ kobe-light テーマを Omarchy 4 (Quattro) で「意図どおりに」動作さ
 
 ### 2.1 環境
 
-- Omarchy `4.0.0-1` (Quattro)。**現時点の適用テーマは `tokyo-night`** であり、kobe-light は未適用 (`~/.local/state/omarchy/current/theme.name` = `tokyo-night` を実測確認)。移行は**先に `omarchy theme set kobe-light` で再適用**してから進める。検証も再適用後の `~/.local/state/omarchy/current/theme/` に対して行う。
-- **リポジトリとインストール先の関係:** `omarchy theme set` は `~/.config/omarchy/themes/kobe-light/` を読むが、これは本リポジトリ (`/home/usutani/Work/.../omarchy-kobe-light-theme`) の**別コピー** (symlink ではなく独自 `.git` を持つ) で、リポジトリの編集は自動では反映されない。検証前に `rsync -a --exclude .git <repo>/ ~/.config/omarchy/themes/kobe-light/` で同期するか、`rm -rf` してリポジトリへの symlink に置き換える。既存インストールの削除は必須ではないが、同期/置換は必要。
+- Omarchy `4.0.0-1` (Quattro)。本計画の作業完了時点で **kobe-light 適用済み** (`~/.local/state/omarchy/current/theme.name` = `kobe-light`、`omarchy theme current` = `Kobe Light` を実測確認)。
+- **リポジトリとインストール先の関係:** `omarchy theme set` は `~/.config/omarchy/themes/kobe-light/` を読む。作業中にインストール先を**リポジトリへの symlink に置き換え済み** (実コピーを削除し `ln -sfn /home/usutani/Work/custom_omarchy_theme/omarchy-kobe-light-theme ~/.config/omarchy/themes/kobe-light`)。以後、リポジトリの編集が適用中のテーマへ即時反映される。
 - Quickshell 稼働中。waybar / mako / swayosd / hyprlock / hypridle は**未インストール** (実測: `command -v` で確認)、walker はバイナリのみ残存 (`/usr/bin/walker`) するが Quickshell には使われず**未使用**。
 - テーマ適用時に `default/themed/*.tpl` から各種ファイルが生成され、`shell.toml` / `hyprland.lua` が反映される。生成は `if [[ ! -f $output_path ]]` で**テーマ側に同名ファイルがあればスキップ**されるため、手書きファイルが優先される。
 
@@ -71,6 +71,8 @@ kobe-light テーマを Omarchy 4 (Quattro) で「意図どおりに」動作さ
 5. カーソル色・端末背景など、下記の「未決定事項」は実装時に判断する。
 
 ## 4. 移行ステップ
+
+> **実施状況 (2026-08-15):** Step 0–3 は実施済み。Step 4 の生成物検証・適用確認も実施済み (詳細は §7 実施記録)。Step 5 は nvim の目視確認まで実施。Quickshell (bar・通知・ロック・メニュー・polkit) と btop / Obsidian / VS Code / 端末の目視確認は未実施 (§8 残課題)。
 
 ### Step 0: バックアップ
 
@@ -142,12 +144,14 @@ kobe-light テーマを Omarchy 4 (Quattro) で「意図どおりに」動作さ
 
 新規追加 (任意):
 
-- `unlock.png` — **Plymouth ブートロゴ**用 (`omarchy plymouth set-by-theme kobe-light` で適用)。ストックテーマは全て保有。Quickshell のロック画面 (背景画像) には使われない点に注意。テーマセット時には自動適用されないため任意。
-- `preview-unlock.png` — Plymouth スイッチャー (`omarchy plymouth switcher`) のプレビューサムネイル。
+- `unlock.png` — **Plymouth ブートロゴ**用。`omarchy plymouth set-by-theme kobe-light` がテーマの `background` / `foreground` 色と `unlock.png` をロゴとして、`/usr/share/plymouth/themes/omarchy/logo.png` と SDDM ログインロゴへインストールする (`omarchy-plymouth-set-by-theme:53`)。システム標準テーマ 22 種は全て保有 (実例 `lupine` は 800×378 RGBA PNG)。**Quickshell のロック画面 (背景画像) には使われない**点に注意。`omarchy theme set` 時には自動適用されないため任意。
+- `preview-unlock.png` — `omarchy plymouth switcher` / `omarchy plymouth list` の**プレビューサムネイル**。無いテーマは一覧に表示されない (任意)。
 
 ### Step 4: 生成物との整合チェック
 
 再適用 (`omarchy theme set kobe-light`) 後に確認する生成ファイル:
+
+> **実施済み (2026-08-15):** 以下すべて確認済み。`omarchy theme set kobe-light` は実行済み (`theme.current` = `Kobe Light`)。
 
 - 適用状態: `omarchy theme current` → `kobe-light`、`~/.local/state/omarchy/current/theme.name` が `kobe-light` であること。
 - canonical 解決: `omarchy-theme-color --file ~/.config/omarchy/themes/kobe-light/colors.toml --all` で `mode=light`, `dark_background=#F8F8F8`, `darker_background=#F2F2F2`, `brown` (決定値), `cursor=bright_foreground` が解決されること。
@@ -164,10 +168,13 @@ kobe-light テーマを Omarchy 4 (Quattro) で「意図どおりに」動作さ
 ### Step 6: 検証
 
 ```bash
-omarchy theme set kobe-light    # 再適用
-omarchy debug --no-sudo --print # エラー確認
-omarchy theme bg next           # 壁紙適用確認
+omarchy theme set kobe-light    # 適用 (実施済み)
+omarchy theme current           # → Kobe Light
+omarchy theme bg next           # 壁紙適用確認 (シングル背景なら変更なし)
+omarchy theme bg current        # 現在の壁紙を表示
 ```
+
+> Quattro では `omarchy debug --no-sudo --print` は**存在しない** (実測: Unknown command)。デバッグ情報は `omarchy debug` を使用する。
 
 - Neovim / btop / Obsidian / VS Code / 端末で配色を目視確認。
 - Quickshell の bar・通知・ロック・メニュー・polkit を確認。
@@ -190,3 +197,20 @@ omarchy theme bg next           # 壁紙適用確認
   - `light_modern.json` — https://github.com/microsoft/vscode/blob/main/extensions/theme-defaults/themes/light_modern.json
   - `light_plus.json` — https://github.com/microsoft/vscode/blob/main/extensions/theme-defaults/themes/light_plus.json
   - `light_vs.json` — https://github.com/microsoft/vscode/blob/main/extensions/theme-defaults/themes/light_vs.json
+
+## 7. 実施記録 (2026-08-15)
+
+- `colors.toml` を canonical 化 (§1 の対応表の値で確定)。`mode = "light"` を明示。`brown` は未定義のまま (自動計算 #4A4C00 を許容)。`cursor` は resolver が `bright_foreground` (#A5A5A5) へ強制するため定義しない (§5 決定)。
+- 死にファイル削除 (hyprland.conf / hyprlock.conf / mako.ini / swayosd.css / vscode.json / walker.css / waybar.css) + 手書き端末設定 4 種追加 (`alacritty.toml` / `foot.ini` / `kitty.conf` / `ghostty.conf`)。カーソルのみ VS Code `#000000` に固定、背景は `#FFFFFF` のまま (§5 決定)。
+- 適用確認: `omarchy theme current` = `Kobe Light`、`theme.name` = `kobe-light`。`hyprland.lua` の `active_border` = `#005FB8`、`vscode-theme.json` の `type` = `light`、テンプレートのプレースホルダ残骸なし。
+- 壁紙: `~/.local/state/omarchy/current/background` → `~/.config/omarchy/backgrounds/kobe-light/*.jpeg` に解決済み。
+- **nvim がダークテーマ (tokyonight-moon) にフォールバックした問題の修正:**
+  - 原因: `~/.config/nvim/lua/plugins/theme.lua` が `~/.local/state/omarchy/current/theme/neovim.lua` への**相対 symlink** (`../../../../.local/...`) だったが、`~/.config/nvim` 自体が `~/Work/dotfiles/nvim/...` への symlink のため相対解決が失敗して**破損**。LazyVim がテーマ spec を読めずデフォルト (tokyonight-moon) にフォールバックした。
+  - 修正: symlink を**絶対パス**へ張り直し (`ln -sfn "$HOME/.local/state/omarchy/current/theme/neovim.lua" ~/.config/nvim/lua/plugins/theme.lua`)。Omarchy マイグレーションの相対形式は `~/.config/nvim` が symlink の環境では壊れるため注意。
+  - 追加修正: `colors/kobe-light.lua` に `vim.o.background = "light"` を設定 (未設定だと `background` = `dark` のまま残り、UI が暗く描画される)。
+  - 検証: headless 起動で `colors_name = kobe-light`、`vim.o.background = light`、Normal fg = `#3B3B3B`、起動エラーなし。目視確認済み (ユーザー確認)。
+
+## 8. 残課題
+
+- **目視確認 (未実施):** Quickshell の bar・通知・ロック・メニュー・polkit、および btop / Obsidian / VS Code / 端末の配色。結果に問題があれば §7 へ追記し、必要なら色値を修正する。
+- **(任意)** `unlock.png` / `preview-unlock.png` の追加 — Plymouth ブートロゴ (§4 Step 3 参照)。追加する場合、`omarchy plymouth set-by-theme kobe-light` で適用する。
