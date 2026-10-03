@@ -33,7 +33,14 @@ ln -sfn ~/.config/omarchy/themes/kobe-light/neovim.lua ~/.config/nvim/lua/plugin
 ```
 
 Then restart Neovim. This symlink survives `theme set` re-runs; when switching
-to another theme, restore it to `~/.local/state/omarchy/current/theme/neovim.lua`.
+to another theme (e.g. Tokyo Night), restore the default reference with:
+
+```bash
+ln -sfn ~/.local/state/omarchy/current/theme/neovim.lua ~/.config/nvim/lua/plugins/theme.lua
+```
+
+Use the absolute path: when `~/.config/nvim` is itself a symlink, the relative
+form fails to resolve. Then restart Neovim.
 
 ## Components
 
