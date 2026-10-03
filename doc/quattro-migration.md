@@ -217,6 +217,13 @@ omarchy theme bg current        # 現在の壁紙を表示
   - 検証: フォーカスした foot を grim で撮影し、カーソルが `#000000` の黒ブロックとして描画されることをピクセル解析で確認。適用には foot の再起動が必要。
   - alacritty / kitty / ghostty は最初から正しい順序 (`#000000`) で問題なし。
 - **Plymouth ロゴ追加 (2026-08-15):** `unlock.png` / `preview-unlock.png` を追加 (commit `45cb30c`)。`omarchy plymouth list` への表示を確認。
+- **Markdown配色の修正と nvim テーマ参照の復旧 (2026-10-03):**
+  - 原因1 (配色): `colors/kobe-light.lua` の `@markup.raw #A31515` は `string` 色の流用で、VS Code `markup.inline.raw #800000` と不一致。`@markup.list #800000` も `punctuation.definition.list.begin.markdown #0451A5` と不一致。`@markup.quote` 未定義。`@markup.link #0000FF` は `textLink.foreground #005FB8` と不一致。レガシー `markdownH1-6` 未定義のため `markdownH1→htmlH1→Title #005FB8` に解決され、見出しが青くなっていた。
+  - 原因2 (参照): `omarchy theme set` 実行後に nvim が `aether` で起動していた。`omarchy-theme-set` は「git由来テーマのトップレベル `.lua` は staging しない」仕様 (`/usr/bin/omarchy-theme-set:22`) のため、`current/theme/neovim.lua` は常に `neovim.lua.tpl` (aether) から生成され、手書き `neovim.lua` (kobe-light standalone) は無視される。`colors/kobe-light.lua` の修正が実行中の nvim に一切反映されない状態だった。
+  - 修正: `colors/kobe-light.lua` に `@markup.quote` / `@markup.link.label/.url` / `@markup.heading.1-6` / `@markup.raw.block` (fg `#3B3B3B` / bg `#F8F8F8` = `textPreformat` / `textCodeBlock.background`) とレガシー `markdown*` 群を追加。`AGENTS.md` 対応表に Markdown行を追記。
+  - 追加修正 (見出し色): 当初 `markup.heading` を公式値 `#800000` にしたが、実行環境の VS Code は Omarchy生成テーマ (`vscode-theme.json` の Markdown Heading `#0451A5` bold) で動作しており、Neovimだけ赤くなる不一致が残った。エディタ表示の整合を優先し、見出し系 (`@markup.heading.1-6`, `markdownH1-6`, `markdownHeadingDelimiter`) を `#0451A5` に変更。公式値からの逸脱として `AGENTS.md` に理由と参照元を明記。
+  - 修正: `~/.config/nvim/lua/plugins/theme.lua` の symlink 先を `current/theme/neovim.lua` (生成・aether) から `~/.config/omarchy/themes/kobe-light/neovim.lua` (手書き・kobe-light) へ変更。`theme set` 再実行時は上書きされないが、他テーマへの切替時は手動で戻す必要がある点に注意。
+  - 検証: フルコンフィグ headless で `colors_name=kobe-light`、`background=light`、全14ハイライト assert 合格。AGENTS.md 上の Treesitter キャプチャ (`markup.heading.1`, `markup.raw.block`) を確認。
 
 ## 8. 残課題
 

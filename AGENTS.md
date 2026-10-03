@@ -87,9 +87,14 @@ ANSI ターミナルカラーは VS Code `terminalColorRegistry` のライトモ
 | `variable.other.constant` | `@constant` | `#0070C1` |
 | `entity.name.tag` | `@tag` | `#800000` |
 | `entity.other.attribute-name` | `@attribute` | `#E50000` |
-| `markup.heading` | `@markup.heading` | `#800000` |
-| `markup.bold` | `@markup.strong` | `#000080` |
-| `markup.italic` | `@markup.italic` | `#800080` |
+| `markup.heading` | `@markup.heading` (+`.1-6`, `markdownH1-6`) | `#0451A5` ※ |
+| `markup.bold` | `@markup.strong` (`markdownBold`) | `#000080` |
+| `markup.italic` | `@markup.italic` (`markdownItalic`) | `#800080` |
+| `markup.inline.raw` | `@markup.raw` (`markdownCode`) | `#800000` |
+| `punctuation.definition.quote.begin.markdown` | `@markup.quote` (`markdownBlockquote`) | `#0451A5` |
+| `punctuation.definition.list.begin.markdown` | `@markup.list` (`markdownListMarker`) | `#0451A5` |
+| `textLink.foreground` | `@markup.link` / `.url` (`markdownLinkText`, `markdownUrl`) | `#005FB8` |
+| `textCodeBlock.background` + `textPreformat.foreground` | `@markup.raw.block` (`markdownCodeBlock`) | bg `#F8F8F8` / fg `#3B3B3B` |
 | `markup.inserted` | `@diff.plus` | `#098658` |
 | `markup.deleted` | `@diff.minus` | `#A31515` |
 | `markup.changed` | `@diff.change` | `#0451A5` |
@@ -99,6 +104,8 @@ ANSI ターミナルカラーは VS Code `terminalColorRegistry` のライトモ
 | `support.type.property-name` | `@property` | `#E50000` |
 | `constant.other.color.rgb-value` | `@number` | `#0451A5` |
 | `storage.modifier` | `@keyword.modifier` | `#0000FF` |
+
+> ※ `markup.heading` は公式 `light_vs.json` (`#800000`) からの逸脱。実行環境の VS Code が Omarchy生成テーマ (Markdown Heading `#0451A5` bold) で動作しているため、エディタ表示の整合を優先して `#0451A5` を採用 (2026-10-03)。
 
 #### VS Code ワークベンチUI → Neovim HL
 
