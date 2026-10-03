@@ -22,7 +22,7 @@ kobe-light テーマを Omarchy 4 (Quattro) で「意図どおりに」動作さ
 ### 2.1 環境
 
 - Omarchy `4.0.0-1` (Quattro)。本計画の作業完了時点で **kobe-light 適用済み** (`~/.local/state/omarchy/current/theme.name` = `kobe-light`、`omarchy theme current` = `Kobe Light` を実測確認)。
-- **リポジトリとインストール先の関係:** `omarchy theme set` は `~/.config/omarchy/themes/kobe-light/` を読む。作業中にインストール先を**リポジトリへの symlink に置き換え済み** (実コピーを削除し `ln -sfn /home/usutani/Work/custom_omarchy_theme/omarchy-kobe-light-theme ~/.config/omarchy/themes/kobe-light`)。以後、リポジトリの編集が適用中のテーマへ即時反映される。
+- **リポジトリとインストール先の関係:** `omarchy theme set` は `~/.config/omarchy/themes/kobe-light/` を読む。作業中はインストール先を**リポジトリへの symlink に置き換える運用も可** (例: インストール先の実コピーを削除し `ln -sfn ~/Work/custom_omarchy_theme/omarchy-kobe-light-theme ~/.config/omarchy/themes/kobe-light`)。symlink 運用ではリポジトリの編集が適用中のテーマへ即時反映される。なお symlink 運用時は git由来テーマ扱いにならず、トップレベル `.lua` も staging される。
 - Quickshell 稼働中。waybar / mako / swayosd / hyprlock / hypridle は**未インストール** (実測: `command -v` で確認)、walker はバイナリのみ残存 (`/usr/bin/walker`) するが Quickshell には使われず**未使用**。
 - テーマ適用時に `default/themed/*.tpl` から各種ファイルが生成され、`shell.toml` / `hyprland.lua` が反映される。生成は `if [[ ! -f $output_path ]]` で**テーマ側に同名ファイルがあればスキップ**されるため、手書きファイルが優先される。
 
