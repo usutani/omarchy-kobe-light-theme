@@ -37,15 +37,16 @@ to another theme, restore it to `~/.local/state/omarchy/current/theme/neovim.lua
 
 ## Components
 
-- **colors.toml** — canonical core palette (VS Code Light+ derived); Omarchy generates Hyprland, Waybar, Mako, Walker, SwayOSD, Hyprlock and VS Code colors from it
-- **Neovim** — standalone colorscheme (`colors/kobe-light.lua`) with a LazyVim spec (`neovim.lua`)
-- **Terminals** — hand-written configs: Alacritty, Foot, Kitty, Ghostty
-- **Obsidian** — note app theme
-- **btop** — resource monitor colors
+- **colors.toml** — canonical core palette (VS Code Light Modern derived); Omarchy generates Quickshell (`shell.toml`), Hyprland (`hyprland.lua`), VS Code (`vscode-theme.json`) and other app colors from it
+- **Neovim** — standalone colorscheme (`colors/kobe-light.lua`) with a LazyVim spec (`neovim.lua`; see [Neovim](#neovim))
+- **Terminals** — hand-written configs overriding the generated ones: Alacritty, Foot, Kitty, Ghostty
+- **Obsidian** — note app theme (hand-written)
+- **btop** — resource monitor colors (hand-written)
 - **Chromium** — new tab background color
 - **Icons** — file manager icon set (`icons.theme`)
 - **Wallpaper** — bundled (`backgrounds/`)
   - `suma-coast.jpg` — Suma Coast (provided by Kobe City / CC BY-NC-SA 4.0, [PHOTO PORT](https://www.photoport-kobe.jp/photo/836))
+- **Plymouth** — boot logo (`unlock.png`, applied manually via `omarchy plymouth set-by-theme kobe-light`)
 
 ## License
 
